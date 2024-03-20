@@ -16,6 +16,7 @@ from bacpypes.object import (
     DateTimeValueObject,
     MultiStateValueObject,
 )
+from Ticker import Ticker
 from BAC0.tasks.RecurringTask import RecurringTask
 import threading
 import time
@@ -27,6 +28,7 @@ from BAC0.core.devices.local.models import (
     binary_output,
     binary_input,
 )
+import sys
 class settingObject:
     def __init__(self,tempStart,tempEnd,pressureStart,PressureEnd,fireAlarm) -> None:
         self.tempStart = tempStart
@@ -41,8 +43,6 @@ def interrupted(signum, frame):
     "called when read times out"
     print('interrupted!')
 
-
-signal.signal(signal.SIGALRM, interrupted)
 
 
 queuer = queue.Queue()
@@ -113,35 +113,44 @@ def userUpdate(queue:queue.Queue):
         password=input("Press Enter Password to change setting")
         if password=="P@ssw0rd":
             setting=settingObject()
+            timer=Ticker(30)
+            timer.start()
             try:
                 print("please select the setting you want to change")
                 print("1. Temperature Range")
                 print("2. Pressure Range")
                 print("3. Fire Alarm")
                 print("4. Exit")
-                choice = input("Enter your choice: ",30)
-                if choice == "1":
-                    tempStart = float(input("Enter the start temperature: ",timeout=20))
-                    if tempStart == None:
-                        tempStart = setting.tempStart
-                    tempEnd = float(input("Enter the end temperature: "))
-                    setting.tempStart = tempStart
-                    setting.tempEnd = tempEnd
-                    queue.put(setting)
-                elif choice == "2":
-                    pressureStart = float(input("Enter the start pressure: "))
-                    pressureEnd = float(input("Enter the end pressure: "))
-                    setting.PressureStart = pressureStart
-                    setting.PressureEnd = pressureEnd
-                    queue.put(setting)
-                elif choice == "3":
-                    fireAlarm = bool(input("Enter the fire alarm status: "))
-                    setting.FireAlarm = fireAlarm
-                    queue.put(setting)
-                else:
-                    break
+                print("Enter your choice: ")
+                while t.evt.wait():
+                    choice = sys.stdin.readline().strip()
+                    if choice == "1":
+                        try:
+                            print("Enter the start temperature: ")
+                            setting.tempStart = float(sys.stdin.readline().strip())
+                            print("Enter the end temperature: ")
+                            setting.tempEnd = float(sys.stdin.readline().strip())
+                            queue.put(setting)
+                        except:
+                            print("Invalid Input")
+                    elif choice == "2":
+                        print("Enter the start pressure: ")
+                        setting.PressureStart = float(sys.stdin.readline().strip())
+                        print("Enter the end pressure: ")
+                        setting.PressureEnd = float(sys.stdin.readline().strip())
+                        queue.put(setting)
+                    elif choice == "3":
+                        print("Enter the fire alarm status: ")
+                        print("1. True, other is False")
+                        number=int(sys.stdin.readline().strip())
+                        setting.FireAlarm = True if number==1 else False
+                        queue.put(setting)
+                    else:
+                        break
             except:
-                print("Timeout over 120s")
+                timer.stop()
+                timer.join()
+                print("input Timeout")
         time.sleep(1)
 
 
