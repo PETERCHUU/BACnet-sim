@@ -29,7 +29,7 @@ from BAC0.core.devices.local.models import (
 
 def StartBACDevice():
     print("Starting BACnet device")
-    new_device = BAC0.lite(deviceId=10031,ip="192.168.11.235",port=47808,mask="24")
+    new_device = BAC0.lite(deviceId=100,ip="192.168.11.235",port=47808,mask="24")
     time.sleep(1)
 
     # Analog Values
@@ -111,6 +111,14 @@ class settingObject:
 DefaultSetting=settingObject(tempStart,tempEnd,PressureStart,PressureEnd,FireAlarm)
 
 bacDevice=StartBACDevice()
+# bacDevice.modelName = "BACnet Device"
+# bacDevice.description = "BACnet Device"
+# bacDevice.location = "BACnet Device"
+# bacDevice.vendorName = "BACnet Device"
+# bacDevice.vendorId=1
+# bacDevice.vendorName="BACnet Device"
+
+
 mainThread = threading.current_thread()
     
 def updateDevice(setting:settingObject,queue:queue.Queue):
