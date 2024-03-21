@@ -128,15 +128,24 @@ def updateDevice(setting:settingObject,queue:queue.Queue):
         pass
 
 
+# class threadTimer:
+#     def __init__(self,evt:threading.Thread,time:int) -> None:
+#         super().__init__()
+#         self.evt=evt
+#         self.time=time
+#         pass
+#     def start(self):
+#         time.sleep(self.time)
+
 
 threading.Thread(target=updateDevice,args=(DefaultSetting,queuer)).start()
 while True:
     password=input("Press Enter Password to change setting")
     if password=="P@ssw0rd":
         setting=settingObject(None,None,None,None,None)
-        timer=Ticker.Ticker(2)
-        timer.start()
+        timer=Ticker.Ticker(10)
         try:
+            timer.start()
             print("please select the setting you want to change")
             print("1. Temperature Range")
             print("2. Pressure Range")
@@ -173,3 +182,4 @@ while True:
             timer.join()
             print("input Timeout")
     pass
+
