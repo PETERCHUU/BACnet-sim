@@ -1,5 +1,17 @@
 #!/usr/bin/env python2.7
 import time, threading
+import queue
+import sys
+queuer = queue.Queue()
+
+class settingObject:
+    def __init__(self,tempStart,tempEnd,pressureStart,PressureEnd,fireAlarm) -> None:
+        self.tempStart = tempStart
+        self.tempEnd = tempEnd
+        self.PressureStart = pressureStart
+        self.PressureEnd = PressureEnd
+        self.FireAlarm = fireAlarm
+        pass
 
 class Ticker(threading.Thread):
   """A very simple thread that merely blocks for :attr:`interval` and sets a
@@ -52,3 +64,49 @@ class Ticker(threading.Thread):
     while self.should_run.is_set():
       time.sleep(self.interval)
       self.evt.set()
+
+
+def userUpdate(queue:queue.Queue):
+    while True:
+        password=input("Press Enter Password to change setting")
+        if password=="P@ssw0rd":
+            setting=settingObject()
+            timer=Ticker(30)
+            timer.start()
+            try:
+                print("please select the setting you want to change")
+                print("1. Temperature Range")
+                print("2. Pressure Range")
+                print("3. Fire Alarm")
+                print("4. Exit")
+                print("Enter your choice: ")
+                while timer.evt.wait():
+                    choice = sys.stdin.readline().strip()
+                    if choice == "1":
+                        try:
+                            print("Enter the start temperature: ")
+                            setting.tempStart = float(sys.stdin.readline().strip())
+                            print("Enter the end temperature: ")
+                            setting.tempEnd = float(sys.stdin.readline().strip())
+                            queue.put(setting)
+                        except:
+                            print("Invalid Input")
+                    elif choice == "2":
+                        print("Enter the start pressure: ")
+                        setting.PressureStart = float(sys.stdin.readline().strip())
+                        print("Enter the end pressure: ")
+                        setting.PressureEnd = float(sys.stdin.readline().strip())
+                        queue.put(setting)
+                    elif choice == "3":
+                        print("Enter the fire alarm status: ")
+                        print("1. True, other is False")
+                        number=int(sys.stdin.readline().strip())
+                        setting.FireAlarm = True if number==1 else False
+                        queue.put(setting)
+                    else:
+                        break
+            except:
+                timer.stop()
+                timer.join()
+                print("input Timeout")
+        time.sleep(1)
