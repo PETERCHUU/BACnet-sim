@@ -29,7 +29,7 @@ from BAC0.core.devices.local.models import (
 
 def StartBACDevice():
     print("Starting BACnet device")
-    new_device = BAC0.lite(deviceId=100,ip="192.168.11.235",port=47808,mask="24")
+    new_device = BAC0.lite(deviceId=100)
     time.sleep(1)
 
     # Analog Values
